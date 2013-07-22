@@ -1,0 +1,165 @@
+
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Звукопазл</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="description" content="">
+		<meta name="author" content="">
+
+		<!-- Le styles -->
+		<link href="/css/bootstrap.css" rel="stylesheet">
+		<link href="/main.css" rel="stylesheet">
+		<style>
+			body {
+				padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+			}
+		</style>
+		<link href="/css/bootstrap-responsive.css" rel="stylesheet">
+
+		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+		<!--[if lt IE 9]>
+			<script src="/js/html5shiv.js"></script>
+		<![endif]-->
+
+		<!-- Fav and touch icons -->
+		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
+		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
+			<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
+										<link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
+																	 <link rel="shortcut icon" href="/ico/favicon.png">
+
+	</head>
+
+	<body>
+
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container">
+					<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="brand" href="#">Звукопазл</a>
+					<div class="nav-collapse collapse">
+						<ul class="nav">
+							<li class="active">
+								<button id="stop-all" class="btn btn-danger">
+									<i class="icon-stop icon-white"></i>
+								</button>
+							</li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+
+			<h1>Звукопазл</h1>
+			<p>Создай свой звукопазл прямо сейчас!</p>
+
+		<table id="zong">
+		</table>
+		</div> <!-- /container -->
+		<!-- Le javascript
+		================================================== -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="/js/jquery-1.10.1.min.js"></script>
+		<script src="/js/bootstrap.js"></script>
+
+		<script>
+			console.log("hello.");
+
+			// Table init
+			
+			var ROW_COUNT = 3, 
+					COL_COUNT = 3;
+			var audio = [];
+
+			var zong = $("#zong");
+			var nowPlaying = {};
+
+			for (var i = 0; i < ROW_COUNT; i++) {
+				
+				
+				audio[i] = [];
+				var currentTr = $('<tr id="r'+i+'"></tr>');
+				zong.append(currentTr);
+
+				for (var j = 0; j < COL_COUNT; j++) {
+					var currentTd = $('<td id="c'+j+'">'+i+j+'</td>');
+					currentTr.append(currentTd); 
+
+					audio[i][j] = $('<audio src="/audio/brother_sun_'+i+(j+1)+'.wav"></audio>')[0];
+					
+					if(j != 0){
+						toggleNextPiece(i, j-1);
+					}
+
+					(function (i, j, currentTd) {
+						$(currentTd).click(function(){
+
+							stopAllPieces();
+
+							nowPlaying = audio[i][j];
+							nowPlaying.play();
+
+							$(currentTd).addClass("active");
+
+						});
+					})(i, j, currentTd);
+
+				};
+			};
+			
+			// Stop all
+			
+			$("#stop-all").click(function(){
+				nowPlaying.pause();
+			});      
+
+			function stopAllPieces(){
+
+					audio.forEach(function(ai, r){
+						ai.forEach(function(aij, c){
+
+							aij.currentTime = 0;
+							aij.pause();
+							
+							$('#zong #r'+r+' #c'+c+'').removeClass("active");
+
+						});
+					});
+			}
+
+			var nowPlayingTimer = 0;
+
+			function toggleNextPiece(i, j){
+
+				var cur = audio[i][j];
+				var next = audio[i][j+1];
+				
+				cur.addEventListener("play", function(){
+
+					clearTimeout(nowPlayingTimer);
+						
+					nowPlayingTimer = 
+							setTimeout(function(){
+
+								stopAllPieces();
+								nowPlaying = next;
+								nowPlaying.play();
+
+								$('#zong #r'+i+' #c'+(j+1)+'').addClass("active");
+
+							}, (this.duration - this.currentTime) * 1000 );
+
+				}, false);
+			}
+
+		</script>  
+	</body>
+</html>
