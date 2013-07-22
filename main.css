@@ -4,8 +4,30 @@
 	background: #aad;
 	text-align: center;
 	cursor: pointer;
+	border: 1px solid black;
+	position: relative;
+	z-index: 2;
+	overflow: hidden;
 }
 #zong tr td:hover, #zong tr td.active {
 	
 	background: #ccd;
+}
+.seeker{
+	position: absolute;
+	z-index: 6;
+	height: 50px;
+	width: 50px;
+	margin-left: -22px;
+	background: #000;
+	opacity: 0.1;
+	float: left;
+}
+.filler{
+	position: relative;
+	z-index: 4;
+	height: 50px;
+	width: 50px;
+	float: left;
+	
 }

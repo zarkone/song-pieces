@@ -90,8 +90,9 @@
 				zong.append(currentTr);
 
 				for (var j = 0; j < COL_COUNT; j++) {
-					var currentTd = $('<td id="c'+j+'">'+i+j+'</td>');
-					currentTr.append(currentTd); 
+					var currentTd = $('<td id="c'+j+'"><div class="seeker"></div><div class="filler" >'+i+j+'</div></td>');
+					currentTr.append(currentTd);
+
 
 					audio[i][j] = $('<audio src="/audio/brother_sun_'+i+(j+1)+'.wav"></audio>')[0];
 					
@@ -145,7 +146,7 @@
 				cur.addEventListener("play", function(){
 
 					clearTimeout(nowPlayingTimer);
-						
+					var playAfter = (this.duration - this.currentTime ) * 1000;
 					nowPlayingTimer = 
 							setTimeout(function(){
 
@@ -155,7 +156,7 @@
 
 								$('#zong #r'+i+' #c'+(j+1)+'').addClass("active");
 
-							}, (this.duration - this.currentTime) * 1000 );
+							}, playAfter );
 
 				}, false);
 			}
