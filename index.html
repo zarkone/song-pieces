@@ -37,29 +37,15 @@
 		<div class="navbar navbar-inverse navbar-fixed-top">
 			<div class="navbar-inner">
 				<div class="container">
-					<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="brand" href="#">Звукопазл</a>
-					<div class="nav-collapse collapse">
-						<ul class="nav">
-							<li class="active">
-								<button id="stop-all" class="btn btn-danger">
+					<button id="stop-all" class="btn btn-danger">
 									<i class="icon-stop icon-white"></i>
 								</button>
-							</li>
-						</ul>
-					</div><!--/.nav-collapse -->
 				</div>
 			</div>
 		</div>
 
 		<div class="container">
 
-			<h1>Звукопазл</h1>
-			<p>Создай свой звукопазл прямо сейчас!</p>
 
 		<table id="zong">
 		</table>
@@ -80,7 +66,23 @@
 			var audio = [];
 
 			var zong = $("#zong");
-			var nowPlaying = {};
+			var nowPlayingProto = { i: 0, j: 0, cell: null, seeker: null};
+				nowPlayingProto.getAudio = function(){
+					return audio[this.i][this.j];
+				};
+				nowPlayingProto.setPiece = function(i, j){
+					this.i = i;
+					this.j = j;
+					this.cell = $('#zong #r'+i+' #c'+j)[0];
+					this.seeker = $(this.cell).children(".seeker")[0];
+
+					return this.cell;
+				};
+
+			var nowPlaying = Object.create(nowPlayingProto);
+
+				
+
 
 			for (var i = 0; i < ROW_COUNT; i++) {
 				
@@ -105,8 +107,8 @@
 
 							stopAllPieces();
 
-							nowPlaying = audio[i][j];
-							nowPlaying.play();
+							nowPlaying.setPiece(i,j);
+							nowPlaying.getAudio().play();
 
 							$(currentTd).addClass("active");
 
@@ -119,7 +121,9 @@
 			// Stop all
 			
 			$("#stop-all").click(function(){
-				nowPlaying.pause();
+				nowPlaying.getAudio().pause();
+				clearTimeout(nowPlayingTimer);
+				clearTimeout(moveSeekerTimer);
 			});      
 
 			function stopAllPieces(){
@@ -136,7 +140,7 @@
 					});
 			}
 
-			var nowPlayingTimer = 0;
+			var nowPlayingTimer = 0, moveSeekerTimer = 0;
 
 			function toggleNextPiece(i, j){
 
@@ -145,21 +149,47 @@
 				
 				cur.addEventListener("play", function(){
 
-					clearTimeout(nowPlayingTimer);
 					var playAfter = (this.duration - this.currentTime ) * 1000;
-					nowPlayingTimer = 
-							setTimeout(function(){
+					
+					clearTimeout(nowPlayingTimer);
+					
+					nowPlayingTimer = setTimeout(function(){
 
-								stopAllPieces();
-								nowPlaying = next;
-								nowPlaying.play();
+						stopAllPieces();
 
-								$('#zong #r'+i+' #c'+(j+1)+'').addClass("active");
+						nowPlaying.setPiece(i,j+1);
+						nowPlaying.getAudio().play();
 
-							}, playAfter );
+						$('#zong #r'+i+' #c'+(j+1)+'').addClass("active");
+
+					}, playAfter );
+
+					moveSeeker();
+
+
 
 				}, false);
 			}
+
+			function moveSeeker(){
+				var cell = nowPlaying.cell,
+					cellLength = $(cell).width(),
+					audioPiece = nowPlaying.getAudio();
+				// var cellLength = $('#zong #r'+nowPlaying.i+' #c'+nowPlaying.j).width();
+				
+				var oneSecondLength = cellLength / audioPiece.duration,
+					currentPosition = audioPiece.currentTime * oneSecondLength,
+
+					currentMargin = currentPosition - cellLength;
+
+				$(nowPlaying.seeker).css('marginLeft', currentMargin);
+
+				moveSeekerTimer = setTimeout(function(){
+						moveSeeker();
+						
+				}, 100);				
+
+			}	
 
 		</script>  
 	</body>
