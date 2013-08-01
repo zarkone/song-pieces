@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -9,26 +8,16 @@
 		<meta name="author" content="">
 
 		<!-- Le styles -->
-		<link href="/css/bootstrap.css" rel="stylesheet">
-		<link href="/main.css" rel="stylesheet">
+		<link href="css/bootstrap.css" rel="stylesheet">
+		<link href="main.css" rel="stylesheet">
 		<style>
 			body {
 				padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
 			}
 		</style>
-		<link href="/css/bootstrap-responsive.css" rel="stylesheet">
 
-		<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-		<!--[if lt IE 9]>
-			<script src="/js/html5shiv.js"></script>
-		<![endif]-->
 
-		<!-- Fav and touch icons -->
-		<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/ico/apple-touch-icon-144-precomposed.png">
-		<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/ico/apple-touch-icon-114-precomposed.png">
-			<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/ico/apple-touch-icon-72-precomposed.png">
-										<link rel="apple-touch-icon-precomposed" href="/ico/apple-touch-icon-57-precomposed.png">
-																	 <link rel="shortcut icon" href="/ico/favicon.png">
+		<link rel="shortcut icon" href="/ico/favicon.png">
 
 	</head>
 
@@ -38,8 +27,11 @@
 			<div class="navbar-inner">
 				<div class="container">
 					<button id="stop-all" class="btn btn-danger">
-									<i class="icon-stop icon-white"></i>
-								</button>
+						<i class="icon-stop icon-white"></i>
+					</button>
+					<button id="play-pause" class="btn btn-primary">
+						<i class="icon-play icon-white"></i>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -53,144 +45,8 @@
 		<!-- Le javascript
 		================================================== -->
 		<!-- Placed at the end of the document so the pages load faster -->
-		<script src="/js/jquery-1.10.1.min.js"></script>
-		<script src="/js/bootstrap.js"></script>
-
-		<script>
-			console.log("hello.");
-
-			// Table init
-			
-			var ROW_COUNT = 3, 
-					COL_COUNT = 3;
-			var audio = [];
-
-			var zong = $("#zong");
-			var nowPlayingProto = { i: 0, j: 0, cell: null, seeker: null};
-				nowPlayingProto.getAudio = function(){
-					return audio[this.i][this.j];
-				};
-				nowPlayingProto.setPiece = function(i, j){
-					this.i = i;
-					this.j = j;
-					this.cell = $('#zong #r'+i+' #c'+j)[0];
-					this.seeker = $(this.cell).children(".seeker")[0];
-
-					return this.cell;
-				};
-
-			var nowPlaying = Object.create(nowPlayingProto);
-
-				
-
-
-			for (var i = 0; i < ROW_COUNT; i++) {
-				
-				
-				audio[i] = [];
-				var currentTr = $('<tr id="r'+i+'"></tr>');
-				zong.append(currentTr);
-
-				for (var j = 0; j < COL_COUNT; j++) {
-					var currentTd = $('<td id="c'+j+'"><div class="seeker"></div><div class="filler" >'+i+j+'</div></td>');
-					currentTr.append(currentTd);
-
-
-					audio[i][j] = $('<audio src="/audio/brother_sun_'+i+(j+1)+'.wav"></audio>')[0];
-					
-					if(j != 0){
-						toggleNextPiece(i, j-1);
-					}
-
-					(function (i, j, currentTd) {
-						$(currentTd).click(function(){
-
-							stopAllPieces();
-
-							nowPlaying.setPiece(i,j);
-							nowPlaying.getAudio().play();
-
-							$(currentTd).addClass("active");
-
-						});
-					})(i, j, currentTd);
-
-				};
-			};
-			
-			// Stop all
-			
-			$("#stop-all").click(function(){
-				nowPlaying.getAudio().pause();
-				clearTimeout(nowPlayingTimer);
-				clearTimeout(moveSeekerTimer);
-			});      
-
-			function stopAllPieces(){
-
-					audio.forEach(function(ai, r){
-						ai.forEach(function(aij, c){
-
-							aij.currentTime = 0;
-							aij.pause();
-							
-							$('#zong #r'+r+' #c'+c+'').removeClass("active");
-
-						});
-					});
-			}
-
-			var nowPlayingTimer = 0, moveSeekerTimer = 0;
-
-			function toggleNextPiece(i, j){
-
-				var cur = audio[i][j];
-				var next = audio[i][j+1];
-				
-				cur.addEventListener("play", function(){
-
-					var playAfter = (this.duration - this.currentTime ) * 1000;
-					
-					clearTimeout(nowPlayingTimer);
-					
-					nowPlayingTimer = setTimeout(function(){
-
-						stopAllPieces();
-
-						nowPlaying.setPiece(i,j+1);
-						nowPlaying.getAudio().play();
-
-						$('#zong #r'+i+' #c'+(j+1)+'').addClass("active");
-
-					}, playAfter );
-
-					moveSeeker();
-
-
-
-				}, false);
-			}
-
-			function moveSeeker(){
-				var cell = nowPlaying.cell,
-					cellLength = $(cell).width(),
-					audioPiece = nowPlaying.getAudio();
-				// var cellLength = $('#zong #r'+nowPlaying.i+' #c'+nowPlaying.j).width();
-				
-				var oneSecondLength = cellLength / audioPiece.duration,
-					currentPosition = audioPiece.currentTime * oneSecondLength,
-
-					currentMargin = currentPosition - cellLength;
-
-				$(nowPlaying.seeker).css('marginLeft', currentMargin);
-
-				moveSeekerTimer = setTimeout(function(){
-						moveSeeker();
-						
-				}, 100);				
-
-			}	
-
-		</script>  
+		<script src="js/jquery-1.10.1.min.js"></script>
+		<script src="js/bootstrap.js"></script>
+		<script src="js/script.js"></script>  
 	</body>
 </html>
